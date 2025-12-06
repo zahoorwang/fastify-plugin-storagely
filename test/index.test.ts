@@ -1,22 +1,23 @@
 import fastify from 'fastify';
-import memory from 'unstorage/drivers/memory';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 
-import { fastifyStorage } from '../src/index';
+import { fastifyStoragely } from '../src/index';
+import memory from '../src/drivers/memory';
+import { name } from '../package.json' with { type: 'json' };
 
 import type { FastifyInstance } from 'fastify';
 
-import type { FastifyStorageOptions } from '../src/index';
+import type { FastifyStoragelyOptions } from '../src/index';
 
-async function setupServe(options: Partial<FastifyStorageOptions> = {}, handlePreReady?: (instance: FastifyInstance) => void | Promise<void>): Promise<FastifyInstance> {
+async function setupServe(options: Partial<FastifyStoragelyOptions> = {}, handlePreReady?: (instance: FastifyInstance) => void | Promise<void>): Promise<FastifyInstance> {
   const instance = fastify();
-  await instance.register(fastifyStorage, { driver: memory(), ...options } as any);
+  await instance.register(fastifyStoragely, { driver: memory(), ...options } as any);
   await handlePreReady?.(instance);
   await instance.ready();
   return instance;
 }
 
-describe('@zahoor/fastify-storage', () => {
+describe(`plugin: ${name}`, () => {
   let serve: FastifyInstance;
   const closeSpied = vi.fn();
 
@@ -28,9 +29,9 @@ describe('@zahoor/fastify-storage', () => {
       async instance => {
         // Register a temporary route for request hookable testing
         instance.get('/test-storage', async req => {
-          expect(req.storage).toBeDefined();
-          expect(req.storagePrefix).toBeDefined();
-          expect(req.storageSnapshot).toBeDefined();
+          expect(req.storagely).toBeDefined();
+          expect(req.storagelyPrefix).toBeDefined();
+          expect(req.storagelySnapshot).toBeDefined();
           return { ok: true };
         });
       }
@@ -45,10 +46,10 @@ describe('@zahoor/fastify-storage', () => {
   // Decorators
   // --------------------------------------------
 
-  it('should decorate Fastify instance with storage, storagePrefix, storageSnapshot', () => {
-    expect(serve.storage).toBeDefined();
-    expect(serve.storagePrefix).toBeDefined();
-    expect(serve.storageSnapshot).toBeDefined();
+  it('should decorate Fastify instance with storagely, storagelyPrefix, storagelySnapshot', () => {
+    expect(serve.storagely).toBeDefined();
+    expect(serve.storagelyPrefix).toBeDefined();
+    expect(serve.storagelySnapshot).toBeDefined();
   });
 
   it('should decorate Fastify request with same APIs', async () => {
@@ -60,12 +61,12 @@ describe('@zahoor/fastify-storage', () => {
   // storagePrefix tests
   // --------------------------------------------
 
-  it('should correctly namespace keys using storagePrefix', async () => {
-    const users = serve.storagePrefix('users:');
+  it('should correctly namespace keys using storagelyPrefix', async () => {
+    const users = serve.storagelyPrefix('users:');
 
     await users.setItem('u1', { name: 'Alice' });
 
-    const raw = await serve.storage.getItem('users:u1');
+    const raw = await serve.storagely.getItem('users:u1');
     expect(raw).toEqual({ name: 'Alice' });
   });
 
@@ -74,18 +75,18 @@ describe('@zahoor/fastify-storage', () => {
   // --------------------------------------------
 
   it('should correctly take and restore snapshots', async () => {
-    await serve.storage.setItem('foo', 'original');
+    await serve.storagely.setItem('foo', 'original');
 
-    const snap = await serve.storageSnapshot('');
+    const snap = await serve.storagelySnapshot('');
     expect(snap).toBeDefined();
 
     // modify key
-    await serve.storage.setItem('foo', 'changed');
+    await serve.storagely.setItem('foo', 'changed');
 
     // restore snapshot
-    await serve.storageSnapshot.restore(snap);
+    await serve.storagelySnapshot.restore(snap);
 
-    const restored = await serve.storage.getItem('foo');
+    const restored = await serve.storagely.getItem('foo');
     expect(restored).toBe('original');
   });
 
