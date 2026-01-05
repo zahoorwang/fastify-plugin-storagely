@@ -130,7 +130,7 @@ const plugin: FastifyStoragelyPlugin = (fastify, opts, done) => {
   done();
 };
 
-export const fastifyStoragely = fp(plugin, {
+export const fastifyStoragely: FastifyStoragelyPlugin = fp(plugin, {
   fastify: '5.x',
   name: '@zahoor/fastify-storagely'
 });

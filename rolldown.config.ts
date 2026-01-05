@@ -34,7 +34,8 @@ export default defineConfig([
       exports: 'named',
       cleanDir: true,
       chunkFileNames: `chunk.js`,
-      entryFileNames: '[name].js'
+      entryFileNames: '[name].js',
+      minify: true
       // entryFileNames: info => (isDriver(info.facadeModuleId) ? 'drivers/[name].js' : '[name].js')
     }
   },
@@ -43,7 +44,7 @@ export default defineConfig([
     plugins: [
       dts({
         emitDtsOnly: true,
-        compilerOptions: { removeComments: false }
+        compilerOptions: { removeComments: false, isolatedDeclarations: true }
       })
     ],
     output: {

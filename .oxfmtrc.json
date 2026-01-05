@@ -9,5 +9,5 @@
   "arrowParens": "avoid",
   "trailingComma": "none",
 
-  "ignorePatterns": ["*.mjs", "src/drivers"]
+  "ignorePatterns": ["*.mjs", "src/drivers", "package.json"]
 }
